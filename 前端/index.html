@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>实验助手 Web 平台</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 登录页 -->
+  <div id="loginPage" class="login-page">
+    <div class="login-left">
+      <div class="login-overlay">
+        <div class="login-brand">
+          <div class="brand-badge">实验助手平台</div>
+          <h1>基于 LLM 与知识库的移动机器人实验助手</h1>
+          <p>
+            支持智能问答、用户管理、教学分析、机器人控制等功能，
+            为实验教学场景提供统一的网页访问入口。
+          </p>
+          <div class="login-feature-list">
+            <div class="feature-box">智能问答</div>
+            <div class="feature-box">教学分析</div>
+            <div class="feature-box">机器人控制</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-right">
+      <div class="login-card">
+        <h2>登录系统</h2>
+        <p class="login-subtitle">请输入账号信息进入平台</p>
+
+        <div class="login-form">
+          <input id="username" type="text" placeholder="请输入账号" />
+          <input id="password" type="password" placeholder="请输入密码" />
+
+          <div class="role-select">
+            <button class="role-btn active" data-role="admin">管理员</button>
+            <button class="role-btn" data-role="teacher">教师</button>
+            <button class="role-btn" data-role="student">学生</button>
+          </div>
+
+          <button class="btn btn-dark login-btn" onclick="login()">登录</button>
+          <div id="loginError" class="login-error"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主系统 -->
+  <div id="appPage" class="app hidden">
+    <aside class="sidebar">
+      <div>
+        <div class="logo">
+          <h2>实验助手平台</h2>
+          <p>统一管理智能问答、教学分析与机器人控制</p>
+        </div>
+
+        <div class="menu">
+          <button class="active" onclick="showPage('dashboard', this)">工作台</button>
+          <button onclick="showPage('chat', this)">智能问答</button>
+          <button onclick="showPage('users', this)">用户管理</button>
+          <button onclick="showPage('records', this)">问答记录</button>
+          <button onclick="showPage('analysis', this)">教学分析</button>
+          <button onclick="showPage('robot', this)">机器人控制</button>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div>当前角色：<span id="currentRole">管理员</span></div>
+        <button class="btn btn-light sidebar-logout" onclick="logout()">退出登录</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1 id="pageTitle">工作台</h1>
+          <p id="pageDesc">统一查看系统状态、问答概览和设备页面。</p>
+        </div>
+        <div class="topbar-right">
+          <input class="search" placeholder="搜索页面内容..." />
+          <button class="btn btn-light">通知</button>
+          <button class="btn btn-dark">新建</button>
+        </div>
+      </div>
+
+      <!-- 工作台 -->
+      <section id="dashboard" class="page active">
+        <div class="grid-4">
+          <div class="card">
+            <h3>今日问答次数</h3>
+            <div class="stat-value">268</div>
+            <div class="muted">较昨日 +12.4%</div>
+          </div>
+          <div class="card">
+            <h3>活跃用户数</h3>
+            <div class="stat-value">89</div>
+            <div class="muted">实验课程进行中</div>
+          </div>
+          <div class="card">
+            <h3>机器人在线状态</h3>
+            <div class="stat-value">3 / 4</div>
+            <div class="muted">1 台待维护</div>
+          </div>
+          <div class="card">
+            <h3>平台运行状态</h3>
+            <div class="stat-value">98.7%</div>
+            <div class="muted">前端静态演示版</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="hero">
+            <span class="tag">统一软件平台</span>
+            <h2>实验教学场景一体化 Web 页面</h2>
+            <p>
+              集成智能问答、用户管理、问答记录、教学分析与机器人控制，
+              为不同角色提供统一网页端入口。
+            </p>
+            <button class="btn btn-light" onclick="openFromDashboard('chat')">进入智能问答</button>
+          </div>
+
+          <div class="card">
+            <h3>最近系统动态</h3>
+            <div class="list-item">
+              <strong>动态 1</strong>
+              智能问答模块运行正常
+            </div>
+            <div class="list-item">
+              <strong>动态 2</strong>
+              教学分析图表已更新
+            </div>
+            <div class="list-item">
+              <strong>动态 3</strong>
+              机器人控制模块在线
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 智能问答 -->
+      <section id="chat" class="page">
+        <div class="chat-layout">
+          <div class="chat-sidebar">
+            <div class="panel-header panel-flex">
+              <span>会话记录</span>
+              <button class="small-btn danger-btn" onclick="clearSessions()">清空历史</button>
+            </div>
+            <div class="session-list" id="sessionList">
+              <div class="session-item active">默认会话</div>
+            </div>
+          </div>
+
+          <div class="chat-main">
+            <div class="panel-header panel-flex">
+              <span>智能问答交互</span>
+              <button class="small-btn danger-btn" onclick="clearChat()">清空内容</button>
+            </div>
+
+            <div class="chat-body" id="chatBody">
+              <div class="message bot">
+                欢迎使用实验助手平台。这里是纯前端演示页面，你可以输入问题查看页面交互效果。
+              </div>
+            </div>
+
+            <div class="chat-input">
+              <input id="chatInput" type="text" placeholder="请输入你的问题..." />
+              <button class="btn btn-light">语音</button>
+              <button class="btn btn-dark" onclick="sendMessage()">发送</button>
+            </div>
+          </div>
+
+          <div class="chat-info">
+            <div class="panel-header">辅助信息</div>
+            <div class="info-body">
+              <div class="list-item">
+                <strong>当前状态</strong>
+                页面演示模式
+              </div>
+              <div class="list-item">
+                <strong>推荐问题</strong>
+                如何切换到机器人控制页面？
+              </div>
+              <div class="list-item">
+                <strong>平台说明</strong>
+                当前版本不连接后端，仅展示前端页面功能
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 用户管理 -->
+      <section id="users" class="page">
+        <div class="card">
+          <h3>用户管理</h3>
+          <div class="form-row">
+            <input placeholder="搜索账号" />
+            <input placeholder="角色" />
+            <input placeholder="状态" />
+            <button class="btn btn-dark">新增用户</button>
+          </div>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>账号</th>
+                <th>身份</th>
+                <th>权限</th>
+                <th>登录状态</th>
+                <th>问答次数</th>
+                <th>备注</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>user_001</td>
+                <td>学生</td>
+                <td>普通访问</td>
+                <td><span class="badge status-online">在线</span></td>
+                <td>28</td>
+                <td>已启用</td>
+              </tr>
+              <tr>
+                <td>user_002</td>
+                <td>教师</td>
+                <td>数据查看</td>
+                <td><span class="badge">离线</span></td>
+                <td>16</td>
+                <td>已启用</td>
+              </tr>
+              <tr>
+                <td>user_003</td>
+                <td>管理员</td>
+                <td>完整权限</td>
+                <td><span class="badge status-online">在线</span></td>
+                <td>9</td>
+                <td>已启用</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 问答记录 -->
+      <section id="records" class="page">
+        <div class="card">
+          <h3>问答记录管理</h3>
+          <div class="form-row">
+            <input placeholder="用户编号" />
+            <input placeholder="课程名称" />
+            <input placeholder="知识点" />
+            <button class="btn btn-dark">筛选记录</button>
+          </div>
+
+          <div class="list-item">
+            <strong>记录 1</strong>
+            问题：GraphRAG 与 RAG 的区别是什么？<br>
+            状态：已归档
+          </div>
+          <div class="list-item">
+            <strong>记录 2</strong>
+            问题：机器人底盘无法接收导航目标怎么办？<br>
+            状态：待分析
+          </div>
+          <div class="list-item">
+            <strong>记录 3</strong>
+            问题：响应慢是什么原因？<br>
+            状态：已归入性能优化专题
+          </div>
+        </div>
+      </section>
+
+      <!-- 教学分析 -->
+      <section id="analysis" class="page">
+        <div class="grid-4">
+          <div class="card">
+            <h3>累计会话数</h3>
+            <div class="stat-value">1286</div>
+            <div class="muted">近 30 天统计</div>
+          </div>
+          <div class="card">
+            <h3>高频用户类型</h3>
+            <div class="stat-value">学生端</div>
+            <div class="muted">活跃度最高</div>
+          </div>
+          <div class="card">
+            <h3>热点知识点</h3>
+            <div class="stat-value">机器人建图</div>
+            <div class="muted">占比 31%</div>
+          </div>
+          <div class="card">
+            <h3>异常会话</h3>
+            <div class="stat-value">10%</div>
+            <div class="muted">需进一步分析</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>问题类型分布</h3>
+            <div class="chart-box">
+              <div class="bar-wrap">
+                <div class="bar" style="height:180px;"></div>
+                <div class="bar-label">电路实验</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height:140px;"></div>
+                <div class="bar-label">ROS导航</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height:110px;"></div>
+                <div class="bar-label">视觉识别</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height:160px;"></div>
+                <div class="bar-label">知识库问答</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>页面建议</h3>
+            <div class="list-item">
+              <strong>建议 1</strong>
+              增强问答区状态反馈提示
+            </div>
+            <div class="list-item">
+              <strong>建议 2</strong>
+              丰富知识点图表示意
+            </div>
+            <div class="list-item">
+              <strong>建议 3</strong>
+              强化控制页的安全提示设计
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 机器人控制 -->
+      <section id="robot" class="page">
+        <div class="grid-4">
+          <div class="card">
+            <h3>连接状态</h3>
+            <div class="stat-value">在线</div>
+            <div class="muted">控制模块可用</div>
+          </div>
+          <div class="card">
+            <h3>剩余电量</h3>
+            <div class="stat-value">78%</div>
+            <div class="muted">预计续航 2.6h</div>
+          </div>
+          <div class="card">
+            <h3>网络质量</h3>
+            <div class="stat-value">良好</div>
+            <div class="muted">前端静态演示</div>
+          </div>
+          <div class="card">
+            <h3>当前位置</h3>
+            <div class="stat-value">区域 A-03</div>
+            <div class="muted">定位展示占位</div>
+          </div>
+        </div>
+
+        <div class="robot-grid">
+          <div class="card">
+            <h3>远程控制面板</h3>
+            <div class="control-pad">
+              <div class="empty"></div>
+              <button>前进</button>
+              <div class="empty"></div>
+              <button>左转</button>
+              <button>停止</button>
+              <button>右转</button>
+              <div class="empty"></div>
+              <button>后退</button>
+              <div class="empty"></div>
+            </div>
+
+            <div class="switch-row">
+              <span>跟随模式</span>
+              <input type="checkbox" checked />
+            </div>
+            <div class="switch-row">
+              <span>自主导航</span>
+              <input type="checkbox" />
+            </div>
+
+            <div style="margin-top:18px;" class="map-box">
+              地图与定位展示区域<br />
+              可用于展示 SLAM 地图、机器人位置、目标点和路径线
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:16px;">
+              <h3>任务日志</h3>
+              <div class="list-item">14:21 已切换到跟随模式</div>
+              <div class="list-item">14:18 接收到控制指令</div>
+              <div class="list-item">14:10 导航完成</div>
+              <div class="list-item">14:05 模块上线成功</div>
+            </div>
+
+            <div class="card">
+              <h3>安全控制</h3>
+              <button class="btn btn-dark full-btn">返回起点</button>
+              <button class="btn btn-light full-btn">重新定位</button>
+              <button class="btn btn-danger full-btn">紧急停止</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
